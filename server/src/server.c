@@ -6,9 +6,34 @@
 #include <sys/socket.h>
 
 #define PORT 1337
-#define ADDR "127.1"
 #define MAX_CON 10
+#define ADDR "127.1"
+
+#define KB 1024
+#define CHUNK_SIZE 64*KB  // Max data size per packet
+
 #define TRANSFER_TARGET "/tmp/test_file"
+
+
+ssize_t getFileSize(FILE *filePtr)
+{
+    ssize_t fileSize = -1;
+
+    if (fseek(filePtr, 0L, SEEK_END) < 0)
+    {
+        perror("Fseek failure."); return -1;
+    }
+
+    fileSize = ftell(filePtr);
+    if (fileSize < 0)
+    {
+        perror("Failed to retrive file size."); return -1;
+    }
+
+    rewind(filePtr);
+
+    return fileSize;
+}
 
 int main()
 {
@@ -24,6 +49,12 @@ int main()
     if (serverFD < 0)
     {
         perror("Server socket creation failed.");
+        retval = 1; goto cleanup;
+    }
+
+    if (setsockopt(serverFD, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0)
+    {
+        perror("Failed to setsockopt.");
         retval = 1; goto cleanup;
     }
 
@@ -60,21 +91,23 @@ int main()
         retval = 1; goto cleanup;
     }
 
-    if (fseek(filePtr, 0L, SEEK_END) < 0)
-    {
-        perror("Fseek failure.");
-        retval = 1; goto cleanup;
-    }
-
-    fileSize = ftell(filePtr);
+    fileSize = getFileSize(filePtr);
     if (fileSize < 0)
     {
-        perror("Failed to retrive file size.");
+        puts("getFileSize Failure.");
         retval = 1; goto cleanup;
     }
 
     printf("Transfering %s. File size: %zd\n", TRANSFER_TARGET, fileSize);
 
 cleanup:
+    if (clientFD)
+    {
+        if (close(clientFD) < 0) { perror("Failed to close clientFD."); }
+    }
+    if (serverFD)
+    {
+        if (close(serverFD) < 0) { perror("Failed to close serverFD."); }
+    }
     return retval;
 }

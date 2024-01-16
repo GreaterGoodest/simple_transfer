@@ -5,7 +5,7 @@ BINARY = server.bin
 all: server.bin
 
 $(BINARY): $(SOURCE)
-	$(CC) $< -o $@
+	$(CC) $< -o $@ -g
 
 scan: $(SOURCE)
 	scan-build -o $(BINARY) make
