@@ -1,1 +1,0 @@
-Basic file transfer client implemented in python
