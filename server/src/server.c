@@ -8,12 +8,15 @@
 #define PORT 1337
 #define ADDR "127.1"
 #define MAX_CON 10
+#define TRANSFER_TARGET "/tmp/test_file"
 
 int main()
 {
     int retval = 0;
     int clientFD = -1;
     int serverFD = -1;
+    FILE *filePtr = NULL;
+    ssize_t fileSize = -1;
     struct sockaddr_in server = {0};
     struct sockaddr_in client = {0};
 
@@ -49,6 +52,28 @@ int main()
     }
 
     puts("Got connection.");
+
+    filePtr = fopen(TRANSFER_TARGET, "rb");
+    if (NULL == filePtr)
+    {
+        perror("Failed to open transfer target.");
+        retval = 1; goto cleanup;
+    }
+
+    if (fseek(filePtr, 0L, SEEK_END) < 0)
+    {
+        perror("Fseek failure.");
+        retval = 1; goto cleanup;
+    }
+
+    fileSize = ftell(filePtr);
+    if (fileSize < 0)
+    {
+        perror("Failed to retrive file size.");
+        retval = 1; goto cleanup;
+    }
+
+    printf("Transfering %s. File size: %zd\n", TRANSFER_TARGET, fileSize);
 
 cleanup:
     return retval;
