@@ -30,8 +30,7 @@ def connect_and_receive():
         print(f'Unable to connect due to unknown error case: {e}')
         return
 
-    file = open('received_file', 'wb+')
-    breakpoint()
+    file = open('received_file', 'wb')
     for _ in range(2):
         data = receive_chunk(session)
         file.write(data)
