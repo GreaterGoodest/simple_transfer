@@ -88,5 +88,6 @@ __attribute__((flatten)) int transferFile(int clientFD)
     }
 
 cleanup:
+    if (buffer) { free(buffer); }
     return retval;
 }

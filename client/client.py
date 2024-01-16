@@ -36,8 +36,5 @@ def connect_and_receive():
         file.write(data)
 
 
-
-
-
 if __name__ == '__main__':
     connect_and_receive()
