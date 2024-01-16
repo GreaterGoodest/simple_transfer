@@ -5,7 +5,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 
-#include "utils.h"
+#include "transfer.h"
 
 #define PORT 1337
 #define MAX_CON 10
@@ -14,16 +14,12 @@
 #define KB 1024
 #define CHUNK_SIZE 64*KB  // Max data size per packet
 
-#define TRANSFER_TARGET "/tmp/test_file"
-
 
 int main()
 {
     int retval = 0;
     int clientFD = -1;
     int serverFD = -1;
-    FILE *filePtr = NULL;
-    ssize_t fileSize = -1;
     struct sockaddr_in server = {0};
     struct sockaddr_in client = {0};
 
@@ -66,22 +62,9 @@ int main()
 
     puts("Got connection.");
 
-    filePtr = fopen(TRANSFER_TARGET, "rb");
-    if (NULL == filePtr)
-    {
-        perror("Failed to open transfer target.");
-        retval = 1; goto cleanup;
-    }
+    transfer_file(clientFD);
 
-    fileSize = getFileSize(filePtr);
-    if (fileSize < 0)
-    {
-        puts("getFileSize Failure.");
-        retval = 1; goto cleanup;
-    }
-
-    printf("Transfering %s. File size: %zd\n", TRANSFER_TARGET, fileSize);
-
+    printf("FDs: %d %d\n", clientFD, serverFD);
 cleanup:
     if (clientFD)
     {
