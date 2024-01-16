@@ -1,11 +1,12 @@
 CC=clang
-SOURCE = src/server.c
+SOURCE = src/server.c src/utils.c
 BINARY = server.bin
+INCLUDE = -Iinclude
 
 all: server.bin
 
-$(BINARY): $(SOURCE)
-	$(CC) $< -o $@ -g
+$(BINARY): $(SOURCE) 
+	$(CC) $(SOURCE) -o $@ -g $(INCLUDE)
 
 scan: $(SOURCE)
 	scan-build -o $(BINARY) make
