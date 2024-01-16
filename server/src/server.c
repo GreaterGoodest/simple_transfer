@@ -11,9 +11,6 @@
 #define MAX_CON 10
 #define ADDR "127.1"
 
-#define KB 1024
-#define CHUNK_SIZE 64*KB  // Max data size per packet
-
 
 int main()
 {
@@ -62,7 +59,11 @@ int main()
 
     puts("Got connection.");
 
-    transfer_file(clientFD);
+    if (transferFile(clientFD) != 0)
+    {
+        puts("transferFile Failure.");
+        retval = 1; goto cleanup;
+    }
 
     printf("FDs: %d %d\n", clientFD, serverFD);
 cleanup:
