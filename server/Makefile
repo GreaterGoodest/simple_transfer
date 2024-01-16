@@ -9,3 +9,6 @@ $(BINARY): $(SOURCE)
 
 scan: $(SOURCE)
 	scan-build -o $(BINARY) make
+
+clean:
+	rm -rf $(BINARY)
