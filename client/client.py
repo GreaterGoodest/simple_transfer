@@ -31,9 +31,11 @@ def connect_and_receive():
         return
 
     file = open('received_file', 'wb')
-    for _ in range(2):
+    while True:
         data = receive_chunk(session)
         file.write(data)
+        if len(data) < CHUNK_SIZE:
+            break
 
 
 if __name__ == '__main__':
