@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <sys/socket.h>
 
+#include "crypto.h"
 #include "transfer.h"
 
 const long CHUNK_SIZE = 2*MB;
@@ -32,27 +33,35 @@ ssize_t getFileSize(FILE *filePtr)
 int sendChunk(FILE *filePtr, int clientFD, uint8_t* buffer)
 {
     int retval = 0;
-    int chunksRead = 0;
+    int dataRead = 0;
+    size_t ciphertext_len = 0;
+    uint8_t *encrypted_buffer = NULL;
 
-    chunksRead = fread(buffer, sizeof(uint8_t), CHUNK_SIZE, filePtr);
-    if (send(clientFD, buffer, chunksRead, 0) < 0)
+    dataRead = fread(buffer, sizeof(uint8_t), CHUNK_SIZE - tag_len, filePtr);
+
+    encrypted_buffer = calloc(dataRead + tag_len, sizeof(uint8_t));
+    encrypt(buffer, encrypted_buffer, dataRead, &ciphertext_len);
+
+    if (send(clientFD, encrypted_buffer, ciphertext_len, 0) < 0)
     {
         perror("Failed to send data to client.");
         retval = 1; goto cleanup;
     }
 
 cleanup:
+    if (encrypted_buffer){ free(encrypted_buffer); }
     memset(buffer, 0, CHUNK_SIZE);
     return retval;
 }
 
-__attribute__((flatten)) int transferFile(int clientFD)
+__attribute__((flatten)) int transferFile(int clientFD) //Compiler attributes...
 {
     int retval = 0;
     FILE *filePtr = NULL;
     ssize_t fileSize = -1;
     uint8_t *buffer = NULL;
     
+    printf("test: %d\n", alg);
     filePtr = fopen(TRANSFER_TARGET, "rb");
     if (NULL == filePtr)
     {
@@ -76,7 +85,7 @@ __attribute__((flatten)) int transferFile(int clientFD)
         chunks = (fileSize + CHUNK_SIZE - 1) / CHUNK_SIZE; //round up after dividing
     }
 
-    buffer = calloc(CHUNK_SIZE, sizeof(uint8_t));
+    buffer = calloc(CHUNK_SIZE, sizeof(uint8_t)); //checking the memory management box...
     while (currentChunk < chunks)
     {
         if (sendChunk(filePtr, clientFD, buffer) != 0)
