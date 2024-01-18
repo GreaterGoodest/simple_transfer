@@ -61,7 +61,6 @@ __attribute__((flatten)) int transferFile(int clientFD) //Compiler attributes...
     ssize_t fileSize = -1;
     uint8_t *buffer = NULL;
     
-    printf("test: %d\n", alg);
     filePtr = fopen(TRANSFER_TARGET, "rb");
     if (NULL == filePtr)
     {
