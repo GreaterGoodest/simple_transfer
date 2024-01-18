@@ -19,8 +19,6 @@ int encrypt(uint8_t *input_buffer, uint8_t *output_buffer, int len, size_t *ciph
     const uint8_t iv[BLOCK_SIZE] = { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 
                                     0x88, 0x99, 0xaa, 0xbb, 0xcc, 0xdd, 0xee, 0xff };
 
-    const uint8_t additional_data[4] = { 0x13, 0x33, 0x33, 0x37 };
-
 
     result = psa_crypto_init(); 
     if (PSA_SUCCESS != result)
@@ -41,7 +39,7 @@ int encrypt(uint8_t *input_buffer, uint8_t *output_buffer, int len, size_t *ciph
         return 1;
     }
 
-    result = psa_aead_encrypt( psa_key, alg, iv, sizeof(iv), additional_data, sizeof(additional_data),
+    result = psa_aead_encrypt( psa_key, alg, iv, sizeof(iv), NULL, 0,
                             input_buffer, len, output_buffer, len + tag_len, ciphertext_len);
 
     if (PSA_SUCCESS != result)

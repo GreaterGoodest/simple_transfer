@@ -42,6 +42,7 @@ int sendChunk(FILE *filePtr, int clientFD, uint8_t* buffer)
     encrypted_buffer = calloc(dataRead + tag_len, sizeof(uint8_t));
     encrypt(buffer, encrypted_buffer, dataRead, &ciphertext_len);
 
+    printf("len: %zu\n", ciphertext_len);
     if (send(clientFD, encrypted_buffer, ciphertext_len, 0) < 0)
     {
         perror("Failed to send data to client.");
@@ -93,6 +94,7 @@ __attribute__((flatten)) int transferFile(int clientFD) //Compiler attributes...
             retval = 1; goto cleanup;
         }
         currentChunk++;
+        memset(buffer, '\0', CHUNK_SIZE);
     }
 
 cleanup:

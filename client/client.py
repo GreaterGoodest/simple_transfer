@@ -10,20 +10,20 @@ CHUNK_SIZE = 2*MB
 
 key = bytes.fromhex('36864200e0eaf5284d884a0e77d31646')
 iv = bytes.fromhex('00112233445566778899aabbccddeeff')
-cipher = AES.new(key, AES.MODE_GCM, iv)
 
 def decrypt(chunk: bytes) -> bytes:
     ''''''
+    cipher = AES.new(key, AES.MODE_GCM, iv)
     return cipher.decrypt(chunk[:-len(iv)])
 
 def receive_chunk(session: socket.socket) -> bytes:
     data = bytearray()
 
-    while len(data) < CHUNK_SIZE - len(iv):
-        packet = session.recv(CHUNK_SIZE - len(data))
+    while len(data) < CHUNK_SIZE:
+        packet = session.recv(CHUNK_SIZE)
         if not packet:
             return data
-        data.extend(decrypt(packet))
+        data.extend(packet)
 
     return data
 
@@ -40,11 +40,10 @@ def connect_and_receive():
 
     file = open('received_file', 'wb')
     while True:
-        data = receive_chunk(session)
+        data = decrypt(receive_chunk(session))
         file.write(data)
-        if len(data) < CHUNK_SIZE - len(iv):
+        if len(data) < CHUNK_SIZE-16:
             break
-        print('chunk')
 
 
 if __name__ == '__main__':
