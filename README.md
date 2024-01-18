@@ -6,9 +6,10 @@ Just a basic file transfer implementation
 pip install pycryptodomex #needed for GCM mode
 ```
 
-Get clang-tools (Debian based instructions only). This gives you scan-build for static analysis.
+Get clang-tools and clang-tidy (Debian based instructions only). This gives you static analysis.
 ```shell
 apt install clang-tools
+apt install clang-tidy
 ```
 
 Setup mbedtls

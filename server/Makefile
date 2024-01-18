@@ -1,5 +1,6 @@
 CC=clang
 SOURCE = src/server.c src/transfer.c src/crypto.c
+HEADERS = include/crypto.h include/transfer.h
 BINARY = server.bin
 INCLUDE = -Iinclude -Ilibs/mbedtls/include
 LIBS_PATH = -Llibs/mbedtls/library
@@ -12,6 +13,7 @@ $(BINARY): $(SOURCE)
 
 scan: $(SOURCE)
 	scan-build -o $(BINARY) make
+	clang-tidy $(SOURCE) -- $(INCLUDE)
 
 clean:
 	rm -rf $(BINARY)
