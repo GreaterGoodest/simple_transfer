@@ -51,7 +51,7 @@ int sendChunk(FILE *filePtr, int clientFD, uint8_t* buffer)
 
 cleanup:
     if (encrypted_buffer){ free(encrypted_buffer); }
-    memset(buffer, 0, CHUNK_SIZE);
+    memset(buffer, 0, CHUNK_SIZE); //NOLINT
     return retval;
 }
 
@@ -94,7 +94,7 @@ __attribute__((flatten)) int transferFile(int clientFD) //Compiler attributes...
             retval = 1; goto cleanup;
         }
         currentChunk++;
-        memset(buffer, '\0', CHUNK_SIZE);
+        memset(buffer, '\0', CHUNK_SIZE); //NOLINT
     }
 
 cleanup:
